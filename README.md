@@ -2,7 +2,7 @@ Run following code in R console:
 
     shiny::runGitHub("szwd_mapmaker_simpel", "0zg")
 
-*Main URL demo**: https://szwd.nl/self/mapmaker_simpel <br>
+**Main URL demo**: https://szwd.nl/self/mapmaker_simpel <br>
 **Mirror URL demo**: none
 
 *Current Version*: 0.1.2
