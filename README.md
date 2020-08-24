@@ -28,7 +28,7 @@ Second, install following R packages:
     #install.packages("remotes") #to download and compile older versions of packages 
     #install_version("shiny", version = "0.10.1", repos = "http://cran.us.r-project.org")
     
-    #windows R-3.4.1 (using Microsoft binaries for R3.4.1, so you don't have to compile)
+    #windows R-3.4.1 (using windows-binaries for R3.4.1, so you don't have to compile)
     setRepositories(addURLs = c(MRAN_R341="https://cran.microsoft.com/snapshot/2017-09-01/"),ind=0) #R3.4.1
     install.packages("shiny")
 
