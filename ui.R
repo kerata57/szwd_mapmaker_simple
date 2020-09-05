@@ -7,27 +7,58 @@
 #    http://shiny.rstudio.com/
 #
 
+
 library(shiny)
+library(leaflet)
+library(RColorBrewer)
+library(scales)
+library(lattice)
+library(dplyr)
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+ui <- shinyUI(fluidPage(
+    navbarPage("szwd mapmaker", id="nav",
+         tabPanel("Import CSV", value="tab1",
+                  
+                  # Input: Select a file ---
+                  fileInput("file1", "Kies een CSV bestand met postcodes en/of coordinaten om deze op de kaart te tonen.",
+                            multiple = TRUE,
+                            accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv")),
+                  
+                  # Horizontal line ----
+                  tags$hr(),
+                  # Input: Select separator ----
+                  radioButtons("sep", "Scheidingsteken",
+                               choices = c(Komma = ",",
+                                           Puntkomma = ";"),
+                               selected = ","),
+                  tags$hr(),
+                  actionButton("showmap", "Toon kaart"),
+                  tableOutput("contents")
+                  
+                  
+                  ),   
+         tabPanel("Toon Kaart", value="tab2",
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
+            div(class="outer",
+                
+                tags$head(
+                    # Include our custom CSS
+                    includeCSS("styles.css"),
+                    includeScript("gomap.js")
+                ),
+                
+                # If not using custom CSS, set height of leafletOutput to a number instead of percent
+                leafletOutput("map", width="100%", height="100%"),
+                
+                tags$div(id="cite",
+                         'Data compiled for ', tags$em('Ministery of Social Afairs and Employment, 2019–2020'), ' by Oz.'
+                )
+            )
+         )
     )
+
 ))
+
