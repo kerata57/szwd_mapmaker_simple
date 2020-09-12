@@ -31,13 +31,15 @@ ui <- shinyUI(fluidPage(
                   tags$hr(),
                   # Input: Select separator ----
                   radioButtons("sep", "Scheidingsteken",
-                               choices = c(Komma = ",",
-                                           Puntkomma = ";"),
-                               selected = ","),
+                               choices = c(Puntkomma = ";",
+                                           Komma = ","),
+                               selected = ";"),
                   tags$hr(),
-                  actionButton("showmap", "Toon kaart"),
+                  actionButton("showmap", "Toon op kaart"),
+                  tags$br(),tags$br(),
+                  verbatimTextOutput("txt1", placeholder = TRUE),
+                  tags$br(),tags$br(),
                   tableOutput("contents")
-                  
                   
                   ),   
          tabPanel("Toon Kaart", value="tab2",
