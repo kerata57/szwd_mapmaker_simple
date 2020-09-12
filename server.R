@@ -121,13 +121,13 @@ server <- shinyServer(function(input, output, session) {
 
 
 #Make the application 
-app <- shinyApp(ui = ui, server = server)
+#app <- shinyApp(ui = ui, server = server)
 
 #Run the application
 #for more options: https://shiny.rstudio.com/reference/shiny/0.14/shiny-options.html
-runApp(app, port = 3127, host =  "0.0.0.0",
-       launch.browser =  interactive(), workerId = "",
-       quiet = FALSE, display.mode = c( "normal"))
+#runApp(app, port = 3127, host =  "0.0.0.0",
+#       launch.browser =  interactive(), workerId = "",
+ #      quiet = FALSE, display.mode = c( "normal"))
 
 
 
