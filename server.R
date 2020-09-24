@@ -6,6 +6,13 @@
 #
 #    http://shiny.rstudio.com/
 #
+# backwards compatibility
+# windows R-3.4.1 (current dwr-next env.) 
+# using latest 3.4.x windows-binaries (R3.4.4) so you don't have to compile
+#setRepositories(addURLs = c(MRAN_R344="https://cran.microsoft.com/snapshot/2018-04-01/"),ind=0) #R3.4.4
+#install.packages("htmlwidgets") #new versions ask for shiny 1.1 and throws error
+#install.packages("DT") #new versions ask for shiny 1.1 and throws error
+#install.packages("shiny") #this installs shiny 1.0.5
 
 library(shiny)
 
@@ -41,52 +48,63 @@ server <- shinyServer(function(input, output, session) {
         {
           df <- read.csv(input$file1$datapath,
                          sep = input$sep)
-          
+          latlon_colnames <- c("")
+          label_colname <-  ""
+
           if("latitude" %in% colnames(df))
           {
             if("longitude" %in% colnames(df)){
+              latlon_colnames <- c("latitude","longitude")
               str_log <- "kolommen gevonden in csv 'latitude' en 'longitude', wordt gebruikt als coordinaat data. \n"
-              coords <- as.data.frame(df$latitude)#assiging colnames at creation does not work (or is errorprone code)
-              coords$lon <- df$longitude
-              colnames(coords) <- c("lat","lon")
-              sv$coords <- coords
             }
           }
           else if("lat" %in% colnames(df))
           {
             if("lon" %in% colnames(df)){
+              latlon_colnames <- c("lat","lon")
               str_log <- "kolommen gevonden in csv 'lat' en 'lon', wordt gebruikt als coordinaat data. \n"
-              coords <- as.data.frame(df$lat)#assiging colnames at creation does not work (or is errorprone code)
-              coords$lon <- df$lon
-              colnames(coords) <- c("lat","lon")
-              sv$coords <- coords
             }
             else if("lng" %in% colnames(df)){
+              latlon_colnames <- c("lat","lng")
               str_log <- "kolommen gevonden in csv 'lat' en 'lng', wordt gebruikt als coordinaat data. \n"
-              coords <- as.data.frame(df$lat)#assiging colnames at creation does not work (or is errorprone code)
-              coords$lon <- df$lng
-              colnames(coords) <- c("lat","lon")
-              sv$coords <- coords
             }
           }
           else if("gps_lat" %in% colnames(df))
           {
             if("gps_lon" %in% colnames(df)){
+              latlon_colnames <- c("gps_lat","gps_lon")
               str_log <- "kolommen gevonden in csv 'gps_lat' en 'gps_lon', wordt gebruikt als coordinaat data. \n"
-              coords <- as.data.frame(df$gps_lat)#assiging colnames at creation does not work (or is errorprone code)
-              coords$lon <- df$gps_lon
-              colnames(coords) <- c("lat","lon")
-              sv$coords <- coords
             }
             else if("gps_lng" %in% colnames(df)){
+              latlon_colnames <- c("gps_lat","gps_lng")
               str_log <- "kolommen gevonden in csv 'gps_lat' en 'gps_lng', wordt gebruikt als coordinaat data. \n"
-              coords <- as.data.frame(df$gps_lat)#assiging colnames at creation does not work (or is errorprone code)
-              coords$lon <- df$gps_lng
-              colnames(coords) <- c("lat","lon")
-              sv$coords <- coords
             }
           }
           else (str_log <- "geen kolommen gevonden voor locatie-duiding. \n - Kies de correcte sheidingsteken. \n - Zorg dat coordinaat kolommen 'lat','lon','latitude','longitude' o.i.d. heten. \n - Of zorg dat de postcode kolom 'postcode','pc','pc6' o.i.d. heet. \n")
+
+          if(length(latlon_colnames) > 1) { #eerste kolom wat eindigt op naam gebruiken als label
+            if( !is.na(grep("name",colnames(df),ignore.case = TRUE)[1]) ){  
+              label_colname <- colnames(df[ grep("name",colnames(df),ignore.case = TRUE)[1] ])
+            }
+            else if( !is.na(grep("naam",colnames(df),ignore.case = TRUE)[1]) )  {
+              label_colname <- colnames(df[ grep("naam",colnames(df),ignore.case = TRUE)[1] ])
+            }
+          }
+          
+          if(length(latlon_colnames) > 1) {
+            colnames <- c(latlon_colnames, label_colname)
+            colnames <- colnames[colnames != ""] #filter away empty strings
+            coords <- as.data.frame(df[colnames])#assiging colnames at creation does not work (or is errorprone code)
+            if(length(colnames) == 3) {
+              colnames(coords) <- c("lat","lon","label") 
+            sv$coords <- coords
+            }
+            if(length(colnames) == 2) {
+              colnames(coords) <- c("lat","lon") 
+              sv$coords <- coords
+              }
+            
+          }
           
         },
         error = function(e) {
@@ -120,14 +138,14 @@ server <- shinyServer(function(input, output, session) {
 })
 
 
-#Make the application 
+# Make the application 
 #app <- shinyApp(ui = ui, server = server)
 
-#Run the application
-#for more options: https://shiny.rstudio.com/reference/shiny/0.14/shiny-options.html
+# Run the application
+# for more options: https://shiny.rstudio.com/reference/shiny/0.14/shiny-options.html
 #runApp(app, port = 3127, host =  "0.0.0.0",
 #       launch.browser =  interactive(), workerId = "",
- #      quiet = FALSE, display.mode = c( "normal"))
-
+#       quiet = FALSE, display.mode = c( "normal"))
+#
 
 

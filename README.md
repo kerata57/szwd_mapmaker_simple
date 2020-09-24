@@ -24,17 +24,21 @@ First, download and install R:
 
 Second, install following R packages:
 
-    #linux R-3.3.3
+    # linux R-3.3.3 (current debian env.)
     #install.packages("remotes") #to download and compile older versions of packages 
     #install_version("shiny", version = "0.10.1", repos = "http://cran.us.r-project.org")
     
-    #windows R-3.4.1 (using windows-binaries for R3.4.1, so you don't have to compile)
-    setRepositories(addURLs = c(MRAN_R341="https://cran.microsoft.com/snapshot/2017-09-01/"),ind=0) #R3.4.1
-    install.packages("shiny")
+    # windows R-3.4.1 (current dwr-next env.) 
+    # using latest 3.4.x windows-binaries (R3.4.4) so you don't have to compile
+    setRepositories(addURLs = c(MRAN_R344="https://cran.microsoft.com/snapshot/2018-04-01/"),ind=0) #R3.4.4
+    install.packages("htmlwidgets") #new versions ask for shiny 1. and throws error
+    install.packages("DT") #new versions ask for shiny 1.1 and throws error
+    install.packages("shiny") #this installs shiny 1.0.5
 
 Finally, run following code in R console:
 
-    shiny::runGitHub("szwd_mapmaker_simpel", "0zg")
+    library(shiny)
+    shiny::runGitHub("szwd_mapmaker_simple", "0zg")
 
 
 # License
