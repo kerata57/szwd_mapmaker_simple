@@ -20,12 +20,16 @@ library(shiny)
 server <- shinyServer(function(input, output, session) {
 
   sv <- reactiveValues()# sessionvalues
-    
+  sv$pc4 <- read.csv("pc4_gps_2019.csv", stringsAsFactors = FALSE) #postcode numbers, for conversion to lat.lon.
+  sv$pc6 <- readRDS("pc6_gps_2019.rds") #postcode with letters, for conversion to lat.lon.
     ## Interactive Map ###########################################
     
     # Create the map
     output$map <- renderLeaflet({
-      sv$coords <- data.frame(lat=c(52.120,52.120,52.120),lon=c(5.88,5.89,5.87),id=c(1,2,3))
+
+      sv$coords <- sv$pc4 #default markers, if no file is uploaded
+      #colnames(sv$coords) <- c("lat","lon","label") 
+      #sv$coords <- data.frame(lat=c(52.120,52.120,52.120),lon=c(5.88,5.89,5.87),id=c(1,2,3))
         leaflet() %>%
             addTiles(
                 #urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
@@ -47,7 +51,7 @@ server <- shinyServer(function(input, output, session) {
       tryCatch(
         {
           df <- read.csv(input$file1$datapath,
-                         sep = input$sep)
+                         sep = input$sep, stringsAsFactors = FALSE)
           latlon_colnames <- c("")
           label_colname <-  ""
 
@@ -80,7 +84,43 @@ server <- shinyServer(function(input, output, session) {
               str_log <- "kolommen gevonden in csv 'gps_lat' en 'gps_lng', wordt gebruikt als coordinaat data. \n"
             }
           }
-          else (str_log <- "geen kolommen gevonden voor locatie-duiding. \n - Kies de correcte sheidingsteken. \n - Zorg dat coordinaat kolommen 'lat','lon','latitude','longitude' o.i.d. heten. \n - Of zorg dat de postcode kolom 'postcode','pc','pc6' o.i.d. heet. \n")
+          else if("postcode" %in% colnames(df))
+          {
+            if( max(nchar(df$postcode)) == 4){
+              df2 <- sv$pc4
+              df <- left_join(df, df2, by = c("postcode"="pc4"), suffix= c("_input","_pc4") )
+              
+              latlon_colnames <- c("lat","lon")
+              str_log <- "kolom gevonden in csv, 'postcode' (vier cijferig) wordt gebruikt voor herleiden van coordinaat data. \n"
+            }
+            else if( max(nchar(df$postcode)) > 4){
+              df2 <- sv$pc6
+              df <- left_join(df, df2, by = c("postcode"="pc6"), suffix= c("_input","_pc6") )
+              
+              latlon_colnames <- c("lat","lon")
+              str_log <- "kolom gevonden in csv, 'postcode' wordt gebruikt voor herleiden van coordinaat data. \n"
+            }
+          }
+          else if("kvk_postcode" %in% colnames(df))
+          {
+            if( max(nchar(df$kvk_postcode)) == 4){
+              df2 <- sv$pc4
+              df$postcode_to_match <- gsub(" ", "", df$kvk_postcode, fixed = TRUE)
+              df <- left_join(df, df2, by = c("postcode_to_match"="pc4"), suffix= c("_input","_pc4") )
+              
+              latlon_colnames <- c("lat","lon")
+              str_log <- "kolom gevonden in csv, 'kvk_postcode' (vier cijferig) wordt gebruikt voor herleiden van coordinaat data. \n"
+            }
+            else if( max(nchar(df$kvk_postcode)) > 4){
+              df2 <- sv$pc6
+              df$postcode_to_match <- gsub(" ", "", df$kvk_postcode, fixed = TRUE)
+              df <- left_join(df, df2, by = c("postcode_to_match"="pc6"), suffix= c("_input","_pc6") )
+              
+              latlon_colnames <- c("lat","lon")
+              str_log <- "kolom gevonden in csv, 'kvk_postcode' wordt gebruikt voor herleiden van coordinaat data. \n"
+            }
+          }
+          else (str_log <- "geen kolommen gevonden voor locatie-duiding. \n - Kies de correcte sheidingsteken. \n - Zorg dat coordinaat kolommen 'lat','lon','latitude','longitude' o.i.d. heten. \n - Of zorg dat de postcode kolom 'postcode','pc','pc4','pc6' o.i.d. heet. \n")
 
           if(length(latlon_colnames) > 1) { #eerste kolom wat eindigt op naam gebruiken als label
             if( !is.na(grep("name",colnames(df),ignore.case = TRUE)[1]) ){  
@@ -100,7 +140,8 @@ server <- shinyServer(function(input, output, session) {
             sv$coords <- coords
             }
             if(length(colnames) == 2) {
-              colnames(coords) <- c("lat","lon") 
+              coords$label <- "" #empty label if no name label is given
+              colnames(coords) <- c("lat","lon","label") 
               sv$coords <- coords
               }
             
