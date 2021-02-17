@@ -31,6 +31,7 @@ Second, install following R packages:
     # windows R-3.4.1 (current dwr-next env.) 
     # using latest 3.4.x windows-binaries (R3.4.4) so you don't have to compile
     setRepositories(addURLs = c(MRAN_R344="https://cran.microsoft.com/snapshot/2018-04-01/"),ind=0) #R3.4.4
+    setRepositories(addURLs = c(MRAN_R403="https://cran.microsoft.com/snapshot/2020-10-12/"),ind=0) #R4.0.3
     install.packages("htmlwidgets") #new versions ask for shiny 1. and throws error
     install.packages("DT") #new versions ask for shiny 1.1 and throws error
     install.packages("shiny") #this installs shiny 1.0.5
